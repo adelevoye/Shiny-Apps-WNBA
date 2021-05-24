@@ -3,7 +3,8 @@ rm(list = ls())
 library(tidyverse) 
 library(readr)
 library(shiny)
-
+library(rvest)
+library(janitor)
 
 # Load function
 
@@ -14,13 +15,13 @@ scrape_stats_wnba <- function(season){
   url <- paste0("https://www.basketball-reference.com/wnba/years/",season,"_totals.html")
   stats_tot <- url %>% 
     read_html() %>% 
-    html_table() %>% 
+    rvest::html_table() %>% 
     .[[1]]
   
   #clean
   player_stats_tot <- stats_tot %>% 
     remove_empty("cols") %>%
-    clean_names() %>% 
+    janitor::clean_names() %>% 
     dplyr::filter(!player=="Player") %>%
     mutate_at(vars(-c(player,pos)),as.numeric) %>% 
     mutate_at(vars(-c(player,pos)), funs(replace(., is.na(.), 0))) %>% 
@@ -34,12 +35,12 @@ scrape_stats_wnba <- function(season){
   url <- paste0("https://www.basketball-reference.com/wnba/years/",season,"_advanced.html")
   stats_adv <- url %>% 
     read_html() %>% 
-    html_table() %>% 
+    rvest::html_table() %>% 
     .[[1]]
   
   player_stats_adv <- stats_adv %>% 
     remove_empty("cols") %>%
-    clean_names() %>% 
+    janitor::clean_names() %>% 
     dplyr::filter(!player=="Player") %>%
     mutate_at(vars(-c(player,pos)),as.numeric) %>% 
     mutate_at(vars(-c(player,pos)), funs(replace(., is.na(.), 0))) %>% 
