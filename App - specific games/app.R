@@ -123,9 +123,9 @@ buildf <- function(gameid_vec) {
   player_stats}
 
 # Season started at 401320565, two last numbers growing
-test2 <- c(401320585, 401320584)
-buildf(gameids_picked)
-
+# test2 <- c(401320585, 401320584)
+# buildf(gameids_picked)
+# 
 
 
 #builddffunct(2019)
@@ -156,7 +156,7 @@ ui <- fluidPage(
     #Input  
     numericRangeInput(
       inputId = "gamesids", label = "Numeric Range Input:",
-      value = c(401320565, 401320567)
+      value = c(401320565, 401320586)
     ),
     br(),
     br(),

@@ -1,0 +1,10 @@
+name: specific_games
+title:
+username:
+account: angeledelevoye
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 4178680
+bundleId: 4634919
+url: https://angeledelevoye.shinyapps.io/specific_games/
+when: 1621891079.48353
