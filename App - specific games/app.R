@@ -5,6 +5,7 @@ library(readr)
 library(shiny)
 library(rvest)
 library(janitor)
+library(shinyWidgets)
 
 # Load function
 
@@ -96,7 +97,6 @@ buildf <- function(gameid_vec) {
               plusminus = sum(`+/-`),
               n_games = n())
   
-  
   player_stats <- player_stats %>% 
     mutate(score_pg = score_all/n_games, 
            plusminus_pg = plusminus/n_games)
@@ -108,11 +108,25 @@ buildf <- function(gameid_vec) {
     select(athlete_display_name, team_short_display_name, 
            score_pg, score_all, plusminus_pg, plusminus, n_games)
   
+  player_stats <- player_stats %>% 
+    rename(Player = athlete_display_name, 
+           Team = team_short_display_name, 
+           Fantasy_Score_PG = score_pg, 
+           Fantasy_Score_all = score_all, 
+           Plus_Minus_PG = plusminus_pg, 
+           Plus_Minus_all = plusminus, 
+           Games_played = n_games)
+  
+  player_stats$Fantasy_Score_PG <- round(player_stats$Fantasy_Score_PG,1)
+  player_stats$Plus_Minus_PG <- round(player_stats$Plus_Minus_PG,1)
+  
   player_stats}
 
 # Season started at 401320565, two last numbers growing
-test <- c('401320585', '401320584')
-buildf(test)
+test2 <- c(401320585, 401320584)
+buildf(gameids_picked)
+
+
 
 #builddffunct(2019)
 
@@ -124,24 +138,35 @@ buildf(test)
 
 ui <- fluidPage(
   # App title
-  titlePanel("Fantasy points for specific games, WNBA"),
+  titlePanel("Fantasy points for specific games, WNBA, 2021 season"),
   
   sidebarLayout(
     sidebarPanel(
-      helpText("Get game-specific fantasy points for WNBA players."),
-      p("You have to enter a list of Game IDs that can be found in the URL when looking up any boxscore on ESPN. Example: 'https://www.espn.com/wnba/boxscore/_/gameId/401320584'. Enter '401320584' below"),
-      p("Apologies for this extra step, I am working on having a range of dates as the input!"),
+      helpText("Get game-specific fantasy points for WNBA players"),
+      p("This app is based on ESPN's game IDs and will only work for the 2021 season"),
+      p("Enter the range of game IDs you are interested in below. You will get fantasy scores for all games played in the range.
+        The first game of the 2021 was coded by ESPN as number 401320565. 
+        Games are coded in chronological order, so the second game in the season was 401320566, etc. 
+        Just find the first and last game in the time period you are interested in!
+        Or if you want the x first games of the season, select 401320565 to 401320565 + x. 
+        The app will return an error if you select a game ID for a game that has not been played yet."),
+      p("Games ID can easily be found in the URLs of ESPN's boxscores"),
+      p("You might have to be patient, the table can take a couple of minutes to be generated"),
       
     #Input  
-    textInput(inputId = "gameIDs", label = "Game IDs", 
-                placeholder = "401320584, 401320585"),
+    numericRangeInput(
+      inputId = "gamesids", label = "Numeric Range Input:",
+      value = c(401320565, 401320567)
+    ),
     br(),
     br(),
     br(),
     p("Data scraped from ESPN"),
     p("Formula used for bonus is = PTS + REB + AST + STL + BLK + FGM + 3PM + FTM"),
     p("Formula used for malus is = (FGA-FGM) + (3PA-3PM) + (FTA-FTM) + TOV"),
-    p("Results shown for overall season scores as well as per game average"),
+    p("Results shown for overall scores in the range as well as per game average"),
+    p("A huge thanks to Saiem Gilani and the WeHoop package for their 
+      help accessing ESPN data"),
     ),
     # Output
     mainPanel(dataTableOutput("player_stats"))
@@ -153,12 +178,12 @@ ui <- fluidPage(
 
 server <- function(input, output) {
   # Inputs
-  gameids_picked <- as.character(reactive({
-    input$gameIDs
-  }))
+  gameids_picked <- reactive({
+    seq(input$gamesids[1], input$gamesids[2], by = 1)
+  })
   # Table
   output$player_stats = renderDataTable({
-    builddf(gameids_picked())})
+    buildf(gameids_picked())})
 }
 
 # Run the app ----

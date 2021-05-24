@@ -15,6 +15,6 @@ rsconnect::setAccountInfo(name='angeledelevoye',
                           token='A1193B4BCEB3977E967F9F7962D749B6', 
                           secret='pEYgUWeufwTvuoSsT83V8TIUZohXvY0ZzaebSVm/')
 
-rsconnect::deployApp('/Users/angeledelevoye/Documents/GitHub/Shiny-Apps-WNBA/App - allseason')
+rsconnect::deployApp()
 
 rsconnect::showLogs(appName="app_-_allseason",streaming=TRUE)
