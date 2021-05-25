@@ -1,0 +1,5 @@
+This folder contains the code used to scrape WNBA data from ESPN, build summary individual boxscores stats for a specific subset of games and share them through a Shiny App.
+I thanks Saiem Gilani and the WeHoop package for their help accessing ESPN data
+
+
+The output can be found here: https://angeledelevoye.shinyapps.io/specific_games/

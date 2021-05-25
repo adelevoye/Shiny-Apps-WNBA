@@ -1,0 +1,3 @@
+This folder contains the code used to scrape WNBA data from Basketball Reference, build summary individual boxscores stats and share them through a Shiny App.
+
+The output can be found here: https://angeledelevoye.shinyapps.io/app_-_allseason/ 
