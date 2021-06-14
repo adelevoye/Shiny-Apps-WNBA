@@ -53,8 +53,7 @@ espn_wnba_player_box <- function(game_id){
 }
 
 
-
-
+#gameidvec = c('401320611', '401320612')
 # Function to build df
 
 buildf <- function(gameid_vec) {
@@ -127,11 +126,11 @@ buildf <- function(gameid_vec) {
 
 # Season started at 401320565, two last numbers growing
 # test2 <- c(401320585, 401320584)
-# buildf(gameids_picked)
-# 
+# testdf <- buildf(test2)
+# # 
 
 
-#builddffunct(2019)
+builddffunct(test2)
 
 # UI config
 #      Data scraped from basketball reference.

@@ -6,6 +6,29 @@ library(shiny)
 library(rvest)
 library(janitor)
 
+
+
+url <- paste0('https://www.basketball-reference.com/wnba/years/2020_totals.html')
+stats_tot <- url %>% 
+  read_html() %>% 
+  rvest::html_table() %>% 
+  .[[1]]
+
+#clean
+twplayer_stats_tot <- stats_tot %>% 
+  remove_empty("cols") %>%
+  janitor::clean_names() %>% 
+  dplyr::filter(!player=="Player") %>%
+  mutate_at(vars(-c(player,pos, team)),as.numeric) %>% 
+  mutate_at(vars(-c(player,pos,team)), funs(replace(., is.na(.), 0))) %>% 
+  as_tibble() %>% 
+  group_by(player, team) %>% 
+  slice(1) %>% 
+  ungroup() 
+
+
+
+
 # Load function
 
 scrape_stats_wnba <- function(season){
@@ -23,10 +46,10 @@ scrape_stats_wnba <- function(season){
     remove_empty("cols") %>%
     janitor::clean_names() %>% 
     dplyr::filter(!player=="Player") %>%
-    mutate_at(vars(-c(player,pos)),as.numeric) %>% 
-    mutate_at(vars(-c(player,pos)), funs(replace(., is.na(.), 0))) %>% 
+    mutate_at(vars(-c(player,team)),as.numeric) %>% 
+    mutate_at(vars(-c(player,team)), funs(replace(., is.na(.), 0))) %>% 
     as_tibble() %>% 
-    group_by(player) %>% 
+    group_by(player, team) %>% 
     slice(1) %>% 
     ungroup() 
   
@@ -42,15 +65,15 @@ scrape_stats_wnba <- function(season){
     remove_empty("cols") %>%
     janitor::clean_names() %>% 
     dplyr::filter(!player=="Player") %>%
-    mutate_at(vars(-c(player,pos)),as.numeric) %>% 
-    mutate_at(vars(-c(player,pos)), funs(replace(., is.na(.), 0))) %>% 
+    mutate_at(vars(-c(player,team)),as.numeric) %>% 
+    mutate_at(vars(-c(player,team)), funs(replace(., is.na(.), 0))) %>% 
     as_tibble() %>% 
-    group_by(player) %>% 
+    group_by(player,team) %>% 
     slice(1) %>% 
     ungroup() 
   
   player_stats <- full_join(player_stats_tot, player_stats_adv,
-                            by = c("player", "pos", "g", "mp"))
+                            by = c("player", "team", "g", "mp"))
   return(player_stats)
 }
 
@@ -59,7 +82,7 @@ scrape_stats_wnba <- function(season){
 
 
 # Test
-#test <- scrape_stats_wnba(as.numeric("2020"))
+test <- scrape_stats_wnba(as.numeric("2020"))
 # 
 # test_player_stats <- test %>%
 #   group_by(player) %>%
@@ -82,7 +105,7 @@ fct_ssfl_season = function(season) {
   test <- scrape_stats_wnba(season)
   # Build fantasy score from raw stats
   test_player_stats <- test %>%
-    group_by(player) %>%
+    group_by(player, team) %>%
     summarize(bonus = pts + trb + ast + stl + blk + fg + x3p + ft,
               malus = (fga - fg) + (x3pa - x3p) + (fta - ft) + tov,
               gp = g)
@@ -97,6 +120,7 @@ fct_ssfl_season = function(season) {
   test_player_stats
 }
 
+test2 <- fct_ssfl_season(as.numeric("2020"))
 
 #builddffunct(2019)
 
@@ -107,18 +131,18 @@ fct_season_stat = function(season, stat) {
   test <- scrape_stats_wnba(season)
   # Select stat of interest
   test_player_stats <- test %>%
-    select(player, stat)
+    select(player, team, stat)
   # Get number of games played for each player
   game_played <- test %>%
-    group_by(player) %>%
+    group_by(player, team) %>%
     summarize(gp = g)
   # Merge stat and nbr of games
-  test_player_stats <- left_join(test_player_stats, game_played, by = 'player')
+  test_player_stats <- left_join(test_player_stats, game_played, by = c('player', 'team'))
   test_player_stats
 }
 
 
-#test_our <- builddffunct2(2019, 'per')
+test_our <- fct_season_stat(2019, 'per')
 
 
 # Function to build df for all time, all stats
